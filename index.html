@@ -1,131 +1,377 @@
-# The Hymns Book - Technical Specification
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The Hymns Book - A beautiful collection of Christian hymns with guitar chords and lyrics. Browse, search, and transpose your favorite worship songs.">
+    <meta name="keywords" content="hymns, worship songs, guitar chords, lyrics, Christian music, praise">
+    <meta name="author" content="The Hymns Book">
+    <meta name="theme-color" content="#4a6fa5">
 
-## Dependencies
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
 
-**None.** Zero external dependencies. The entire application is built with:
-- HTML5 (semantic markup)
-- CSS3 (custom properties, flexbox, grid, @keyframes, transitions)
-- Vanilla JavaScript (ES6+, localStorage, IntersectionObserver)
-- Inline SVG icons (hand-crafted, no icon library)
-- System fonts only (no external font CDN)
+    <!-- Google Fonts - including Sinhala support -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
----
+    <title>The Hymns Book | Worship Songs & Chords</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎵</text></svg>">
+<base target="_blank">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-icon">🎵</div>
+            <h2>The Hymns Book</h2>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+            <p>Loading your worship experience...</p>
+        </div>
+    </div>
 
-## Component Inventory
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#home" class="nav-logo" onclick="showPage('home')">
+                <span class="logo-icon">🎵</span>
+                <span class="logo-text">The Hymns Book</span>
+            </a>
 
-### Layout Components
-| Component | Type | Notes |
-|-----------|------|-------|
-| NavigationHeader | fixed header | Transparent→solid on scroll, backdrop-filter blur |
-| Footer | static | Simple centered text |
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span class="hamburger"></span>
+                <span class="hamburger"></span>
+                <span class="hamburger"></span>
+            </button>
 
-### Section Components
-| Component | Type | Notes |
-|-----------|------|-------|
-| HeroSection | centered layout | Title, subtitle, search CTA, keyboard hint |
-| SongGridSection | CSS Grid | Responsive card grid, empty state |
-| AddSongSection | form layout | 4-field form with validation |
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#home" class="nav-link active" onclick="showPage('home')">Home</a></li>
+                <li><a href="#songs" class="nav-link" onclick="showPage('songs')">Songs</a></li>
+                <li><a href="#categories" class="nav-link" onclick="showPage('categories')">Categories</a></li>
+                <li><a href="#favorites" class="nav-link" onclick="showPage('favorites')">Favorites</a></li>
+                <li><a href="#admin" class="nav-link" onclick="showPage('admin')">Add Song</a></li>
+                <li><a href="#about" class="nav-link" onclick="showPage('about')">About</a></li>
+            </ul>
 
-### Overlay Components
-| Component | Type | Notes |
-|-----------|------|-------|
-| SearchOverlay | full-screen modal | Real-time filtering, keyboard shortcut Ctrl+K |
-| SettingsPanel | slide-out panel | Right-side drawer, full-width on mobile |
-| SongDetailModal | centered modal | Song display with chord/lyric rendering, prev/next nav |
-| ToastNotification | bottom toast | Auto-dismiss after 2s |
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </div>
+    </nav>
 
-### Reusable Components
-| Component | Type | Used By |
-|-----------|------|---------|
-| SongCard | card item | SongGridSection |
-| Icon | inline SVG | All components (search, x, chevron, music, sun, moon, plus, minus, sliders, type, guitar) |
-| ToggleSwitch | form control | SettingsPanel (dark mode, show chords) |
-| RangeSlider | form control | SettingsPanel (font size) |
+    <!-- Main Content Container -->
+    <main class="main-content">
 
-### JavaScript Modules
-| Module | Purpose |
-|--------|---------|
-| `app.js` (main) | App initialization, event delegation, state management |
-| `state.js` | Central state store (preferences + songs), localStorage sync |
-| `chordParser.js` | Parse `[Chord]lyric` format, render chord+lyric lines, transposition logic |
-| `search.js` | Filter songs by title/number, manage search overlay |
-| `ui.js` | Modal/panel open/close, scroll-reveal, toast notifications |
+        <!-- HOME PAGE -->
+        <section id="home" class="page active">
+            <div class="hero">
+                <div class="hero-overlay"></div>
+                <div class="hero-content">
+                    <h1 class="hero-title">The Hymns Book</h1>
+                    <p class="hero-subtitle">Worship with chords & lyrics</p>
+                    <p class="hero-description">A beautiful collection of Christian hymns and worship songs with guitar chords. Search, transpose, and sing along.</p>
+                    <div class="hero-actions">
+                        <button class="btn btn-primary" onclick="showPage('songs')">
+                            <span>Browse Songs</span>
+                        </button>
+                        <button class="btn btn-secondary" onclick="showPage('categories')">
+                            <span>By Category</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="hero-decoration">
+                    <div class="floating-note">🎵</div>
+                    <div class="floating-note">🎸</div>
+                    <div class="floating-note">✝️</div>
+                    <div class="floating-note">🙏</div>
+                </div>
+            </div>
 
----
+            <div class="section-container">
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalSongs">0</span>
+                        <span class="stat-label">Songs</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalCategories">0</span>
+                        <span class="stat-label">Categories</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalFavorites">0</span>
+                        <span class="stat-label">Favorites</span>
+                    </div>
+                </div>
 
-## Animation Implementation
+                <div class="featured-section">
+                    <h2 class="section-title">Featured Songs</h2>
+                    <div class="songs-grid" id="featuredSongs"></div>
+                </div>
+            </div>
+        </section>
 
-| Animation | Approach | Complexity |
-|-----------|----------|------------|
-| Hero staggered entrance | CSS `@keyframes fadeInUp` + `animation-delay` on each element | Low |
-| Scroll-reveal sections | IntersectionObserver adds `.visible` class → CSS `animation: fadeInUp 0.5s forwards` | Low |
-| Song card stagger | Same IntersectionObserver pattern + CSS `animation-delay: calc(0.05s * var(--index))` | Low |
-| Card hover lift | CSS `transition: transform 0.2s, box-shadow 0.2s` + `:hover` | Low |
-| Modal open/close | CSS `@keyframes modalIn` (scale+opacity) / `modalOut`. JS toggles class. | Low |
-| Settings panel slide | CSS `transform: translateX(100%)` → `translateX(0)` with `transition` | Low |
-| Search overlay | CSS `@keyframes` fade for backdrop, slide-down for input | Low |
-| Toast show/dismiss | CSS `@keyframes` slide-up + fade-in; exit triggered by class removal | Low |
-| Header background transition | CSS `transition: background 0.3s` on scroll class toggle | Low |
+        <!-- SONGS PAGE -->
+        <section id="songs" class="page">
+            <div class="page-header">
+                <h1 class="page-title">All Songs</h1>
+                <p class="page-subtitle">Browse our collection of hymns and worship songs</p>
+            </div>
 
-**All animations are CSS-only.** No GSAP, no JavaScript animation libraries. IntersectionObserver (native API) is used only to trigger CSS animation classes.
+            <div class="section-container">
+                <!-- Search Bar -->
+                <div class="search-container">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="searchInput" placeholder="Search songs by title..." autocomplete="off">
+                        <button class="search-clear" id="searchClear">✕</button>
+                    </div>
+                </div>
 
----
+                <!-- Category Filter -->
+                <div class="filter-container">
+                    <button class="filter-btn active" data-category="all">All</button>
+                    <button class="filter-btn" data-category="Worship">Worship</button>
+                    <button class="filter-btn" data-category="Praise">Praise</button>
+                    <button class="filter-btn" data-category="Christmas">Christmas</button>
+                    <button class="filter-btn" data-category="Sinhala Hymns">Sinhala Hymns</button>
+                    <button class="filter-btn" data-category="Gospel">Gospel</button>
+                </div>
 
-## State & Logic Plan
+                <!-- Songs Grid -->
+                <div class="songs-grid" id="songsGrid"></div>
 
-### State Store (Module: state.js)
-Central state object with two branches:
-- `songs[]` — array of song objects {id, title, key, tempo, lyrics}
-- `prefs` — {fontSize, darkMode, showChords, transpose}
+                <div class="no-results" id="noResults" style="display: none;">
+                    <div class="no-results-icon">🔍</div>
+                    <h3>No songs found</h3>
+                    <p>Try searching with a different term or browse by category.</p>
+                </div>
+            </div>
+        </section>
 
-All state changes go through setter functions that:
-1. Update the in-memory state object
-2. Persist to localStorage immediately
-3. Notify subscribers (UI update callbacks)
+        <!-- CATEGORIES PAGE -->
+        <section id="categories" class="page">
+            <div class="page-header">
+                <h1 class="page-title">Categories</h1>
+                <p class="page-subtitle">Explore songs by category</p>
+            </div>
 
-### Chord Parsing & Rendering (Module: chordParser.js)
-**Parsing:** Regex `/\[([^\]]+)\]([^\[]*)/g` extracts chord-text pairs from lyrics string.
+            <div class="section-container">
+                <div class="categories-grid" id="categoriesGrid"></div>
+            </div>
+        </section>
 
-**Rendering modes:**
-- Show chords: Render chord line (mono font, brown color) ABOVE lyric line. Chords positioned via `position: absolute` or inline `<span>` elements at calculated offsets based on the text segment before each chord.
-- Hide chords: Strip all `[...]` brackets, display plain lyrics.
+        <!-- FAVORITES PAGE -->
+        <section id="favorites" class="page">
+            <div class="page-header">
+                <h1 class="page-title">My Favorites</h1>
+                <p class="page-subtitle">Your saved songs</p>
+            </div>
 
-**Transposition:**
-- Chromatic scale array: `['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']`
-- Parse chord name → find index → add transpose offset (mod 12) → get new chord name
-- Handle sharp/flat display preference
+            <div class="section-container">
+                <div class="songs-grid" id="favoritesGrid"></div>
+                <div class="no-results" id="noFavorites" style="display: none;">
+                    <div class="no-results-icon">💝</div>
+                    <h3>No favorites yet</h3>
+                    <p>Click the heart icon on any song to save it here.</p>
+                    <button class="btn btn-primary" onclick="showPage('songs')">Browse Songs</button>
+                </div>
+            </div>
+        </section>
 
-### Search (Module: search.js)
-- Debounced input listener (150ms)
-- Filter songs array by: title includes query (case-insensitive) OR song number equals query
-- Render matching results in real-time
-- Highlight matching text with `<mark>` tags
+        <!-- SONG VIEW PAGE -->
+        <section id="songView" class="page">
+            <div class="song-view-container" id="songViewContainer">
+                <!-- Dynamically populated -->
+            </div>
+        </section>
 
-### Settings Panel Logic
-- Font size slider: range 14-24, updates CSS custom property `--font-size` on root
-- Dark mode toggle: toggles `data-theme="dark"` attribute on `<html>`, CSS variables swap
-- Show chords toggle: re-renders any open song modal with/without chords
-- Transpose: updates chord rendering in real-time for open modal; disabled UI when showChords is off
+        <!-- ADMIN / ADD SONG PAGE -->
+        <section id="admin" class="page">
+            <div class="page-header">
+                <h1 class="page-title">Add New Song</h1>
+                <p class="page-subtitle">Contribute a new hymn to the collection</p>
+            </div>
 
-### Data Persistence
-- `localStorage.setItem('hymns_songs', JSON.stringify(songs))`
-- `localStorage.setItem('hymns_prefs', JSON.stringify(prefs))`
-- On first visit (no data in localStorage), seed with 3 sample hymns
-- Welcome toast shown once via `localStorage.getItem('hymns_visited')` flag
+            <div class="section-container">
+                <div class="admin-card">
+                    <form id="addSongForm" class="admin-form">
+                        <div class="form-group">
+                            <label for="songTitle">Song Title *</label>
+                            <input type="text" id="songTitle" required placeholder="e.g., Amazing Grace">
+                        </div>
 
----
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="songCategory">Category *</label>
+                                <select id="songCategory" required>
+                                    <option value="">Select category</option>
+                                    <option value="Worship">Worship</option>
+                                    <option value="Praise">Praise</option>
+                                    <option value="Christmas">Christmas</option>
+                                    <option value="Sinhala Hymns">Sinhala Hymns</option>
+                                    <option value="Gospel">Gospel</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="songKey">Original Key</label>
+                                <select id="songKey">
+                                    <option value="C">C</option>
+                                    <option value="C#">C#</option>
+                                    <option value="D">D</option>
+                                    <option value="D#">D#</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="F#">F#</option>
+                                    <option value="G">G</option>
+                                    <option value="G#">G#</option>
+                                    <option value="A">A</option>
+                                    <option value="A#">A#</option>
+                                    <option value="B">B</option>
+                                </select>
+                            </div>
+                        </div>
 
-## Project File Structure
+                        <div class="form-group">
+                            <label for="songLyrics">Lyrics with Chords *</label>
+                            <div class="lyrics-help">
+                                <p>💡 <strong>Tip:</strong> Wrap chords in square brackets like <code>[G]</code> or <code>[Am7]</code></p>
+                                <p>Example: <code>[G]Amazing grace, how [C]sweet the [G]sound</code></p>
+                            </div>
+                            <textarea id="songLyrics" required rows="12" placeholder="[G]Amazing grace, how [C]sweet the [G]sound&#10;That [D7]saved a wretch like [G]me&#10;I [G]once was lost, but [C]now am [G]found&#10;Was [D7]blind, but now I [G]see"></textarea>
+                        </div>
 
-```
-index.html          Single HTML file with all markup
-style.css           All styles — CSS custom properties, layout, components, animations, dark mode
-app.js              Main application — module imports, initialization, event delegation
-modules/
-  state.js          State management + localStorage persistence
-  chordParser.js    Chord parsing, rendering, transposition
-  search.js         Search overlay + filtering logic
-  ui.js             Modal/panel management, scroll-reveal, toast, header scroll
-```
+                        <div class="form-group">
+                            <label for="songNotes">Additional Notes (optional)</label>
+                            <textarea id="songNotes" rows="3" placeholder="Capo info, strumming pattern, or other notes..."></textarea>
+                        </div>
 
-**Rationale for file split:** Even though there's no build step, ES6 modules (`type="module"`) keep the codebase organized and maintainable. All files are served as static assets.
+                        <div class="form-group">
+                            <label for="songFile">Attach Hymn Sheet (PDF, PNG, JPG)</label>
+                            <input type="file" id="songFile" accept=".pdf,.png,.jpg,.jpeg">
+                            <small class="form-hint">Max file size: 5MB</small>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <span>➕ Add Song</span>
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="showPage('songs')">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- ABOUT PAGE -->
+        <section id="about" class="page">
+            <div class="page-header">
+                <h1 class="page-title">About The Hymns Book</h1>
+                <p class="page-subtitle">A labor of love for worshippers everywhere</p>
+            </div>
+
+            <div class="section-container">
+                <div class="about-card">
+                    <div class="about-icon">🎵</div>
+                    <h2>Our Mission</h2>
+                    <p>The Hymns Book is a free, open platform designed to help worshippers, musicians, and churches access beautiful hymns and worship songs with accurate guitar chords. We believe music is a powerful way to connect with faith, and everyone should have easy access to the songs that inspire them.</p>
+                </div>
+
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🔍</div>
+                        <h3>Easy Search</h3>
+                        <p>Find any song instantly with our powerful search and filter system.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎸</div>
+                        <h3>Chord Transpose</h3>
+                        <p>Change the key of any song to match your vocal range with one click.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💾</div>
+                        <h3>Save Favorites</h3>
+                        <p>Build your personal collection of favorite songs for quick access.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📱</div>
+                        <h3>Works Offline</h3>
+                        <p>Install as a PWA and access your songs even without internet.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🌙</div>
+                        <h3>Dark Mode</h3>
+                        <p>Comfortable viewing in any lighting condition with our dark theme.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📄</div>
+                        <h3>Sheet Support</h3>
+                        <p>Upload and view PDF, PNG, and JPG hymn sheets alongside lyrics.</p>
+                    </div>
+                </div>
+
+                <div class="about-card">
+                    <h2>How to Use</h2>
+                    <ol class="how-to-list">
+                        <li><strong>Browse</strong> — Explore songs by category or use the search bar</li>
+                        <li><strong>View</strong> — Click any song to see lyrics with chords aligned above</li>
+                        <li><strong>Transpose</strong> — Use + / − buttons to change the key</li>
+                        <li><strong>Save</strong> — Click the heart to add songs to your favorites</li>
+                        <li><strong>Contribute</strong> — Add new songs using the "Add Song" page</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <span class="footer-logo">🎵</span>
+                <span class="footer-name">The Hymns Book</span>
+                <p class="footer-tagline">Worship with chords & lyrics</p>
+            </div>
+
+            <div class="footer-links">
+                <div class="footer-col">
+                    <h4>Navigate</h4>
+                    <ul>
+                        <li><a href="#home" onclick="showPage('home')">Home</a></li>
+                        <li><a href="#songs" onclick="showPage('songs')">Songs</a></li>
+                        <li><a href="#categories" onclick="showPage('categories')">Categories</a></li>
+                        <li><a href="#favorites" onclick="showPage('favorites')">Favorites</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Connect</h4>
+                    <div class="social-links">
+                        <a href="#" class="social-link" aria-label="Facebook">📘</a>
+                        <a href="#" class="social-link" aria-label="YouTube">▶️</a>
+                        <a href="#" class="social-link" aria-label="Instagram">📷</a>
+                        <a href="#" class="social-link" aria-label="Email">✉️</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>© 2026 The Hymns Book. Made with ❤️ for worshippers.</p>
+                <p class="footer-credit">All songs are for worship and educational purposes.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <span class="toast-message"></span>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
