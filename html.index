@@ -1,131 +1,44 @@
-# The Hymns Book - Technical Specification
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Hymns Book</title>
 
-## Dependencies
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
-**None.** Zero external dependencies. The entire application is built with:
-- HTML5 (semantic markup)
-- CSS3 (custom properties, flexbox, grid, @keyframes, transitions)
-- Vanilla JavaScript (ES6+, localStorage, IntersectionObserver)
-- Inline SVG icons (hand-crafted, no icon library)
-- System fonts only (no external font CDN)
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
 
----
+<header>
+  <h1>The Hymns Book</h1>
+  <button id="darkToggle">🌙</button>
+</header>
 
-## Component Inventory
+<div class="container">
+  
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <input type="text" id="search" placeholder="Search hymns..." />
+    <ul id="hymnList"></ul>
+  </aside>
 
-### Layout Components
-| Component | Type | Notes |
-|-----------|------|-------|
-| NavigationHeader | fixed header | Transparent→solid on scroll, backdrop-filter blur |
-| Footer | static | Simple centered text |
+  <!-- Main Content -->
+  <main class="content">
+    <h2 id="title">Select a hymn</h2>
+    <pre id="lyrics"></pre>
+    <img id="chordImage" src="" alt="" />
+  </main>
 
-### Section Components
-| Component | Type | Notes |
-|-----------|------|-------|
-| HeroSection | centered layout | Title, subtitle, search CTA, keyboard hint |
-| SongGridSection | CSS Grid | Responsive card grid, empty state |
-| AddSongSection | form layout | 4-field form with validation |
+</div>
 
-### Overlay Components
-| Component | Type | Notes |
-|-----------|------|-------|
-| SearchOverlay | full-screen modal | Real-time filtering, keyboard shortcut Ctrl+K |
-| SettingsPanel | slide-out panel | Right-side drawer, full-width on mobile |
-| SongDetailModal | centered modal | Song display with chord/lyric rendering, prev/next nav |
-| ToastNotification | bottom toast | Auto-dismiss after 2s |
+<!-- Lightbox -->
+<div id="lightbox" class="lightbox">
+  <img id="lightboxImg">
+</div>
 
-### Reusable Components
-| Component | Type | Used By |
-|-----------|------|---------|
-| SongCard | card item | SongGridSection |
-| Icon | inline SVG | All components (search, x, chevron, music, sun, moon, plus, minus, sliders, type, guitar) |
-| ToggleSwitch | form control | SettingsPanel (dark mode, show chords) |
-| RangeSlider | form control | SettingsPanel (font size) |
-
-### JavaScript Modules
-| Module | Purpose |
-|--------|---------|
-| `app.js` (main) | App initialization, event delegation, state management |
-| `state.js` | Central state store (preferences + songs), localStorage sync |
-| `chordParser.js` | Parse `[Chord]lyric` format, render chord+lyric lines, transposition logic |
-| `search.js` | Filter songs by title/number, manage search overlay |
-| `ui.js` | Modal/panel open/close, scroll-reveal, toast notifications |
-
----
-
-## Animation Implementation
-
-| Animation | Approach | Complexity |
-|-----------|----------|------------|
-| Hero staggered entrance | CSS `@keyframes fadeInUp` + `animation-delay` on each element | Low |
-| Scroll-reveal sections | IntersectionObserver adds `.visible` class → CSS `animation: fadeInUp 0.5s forwards` | Low |
-| Song card stagger | Same IntersectionObserver pattern + CSS `animation-delay: calc(0.05s * var(--index))` | Low |
-| Card hover lift | CSS `transition: transform 0.2s, box-shadow 0.2s` + `:hover` | Low |
-| Modal open/close | CSS `@keyframes modalIn` (scale+opacity) / `modalOut`. JS toggles class. | Low |
-| Settings panel slide | CSS `transform: translateX(100%)` → `translateX(0)` with `transition` | Low |
-| Search overlay | CSS `@keyframes` fade for backdrop, slide-down for input | Low |
-| Toast show/dismiss | CSS `@keyframes` slide-up + fade-in; exit triggered by class removal | Low |
-| Header background transition | CSS `transition: background 0.3s` on scroll class toggle | Low |
-
-**All animations are CSS-only.** No GSAP, no JavaScript animation libraries. IntersectionObserver (native API) is used only to trigger CSS animation classes.
-
----
-
-## State & Logic Plan
-
-### State Store (Module: state.js)
-Central state object with two branches:
-- `songs[]` — array of song objects {id, title, key, tempo, lyrics}
-- `prefs` — {fontSize, darkMode, showChords, transpose}
-
-All state changes go through setter functions that:
-1. Update the in-memory state object
-2. Persist to localStorage immediately
-3. Notify subscribers (UI update callbacks)
-
-### Chord Parsing & Rendering (Module: chordParser.js)
-**Parsing:** Regex `/\[([^\]]+)\]([^\[]*)/g` extracts chord-text pairs from lyrics string.
-
-**Rendering modes:**
-- Show chords: Render chord line (mono font, brown color) ABOVE lyric line. Chords positioned via `position: absolute` or inline `<span>` elements at calculated offsets based on the text segment before each chord.
-- Hide chords: Strip all `[...]` brackets, display plain lyrics.
-
-**Transposition:**
-- Chromatic scale array: `['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']`
-- Parse chord name → find index → add transpose offset (mod 12) → get new chord name
-- Handle sharp/flat display preference
-
-### Search (Module: search.js)
-- Debounced input listener (150ms)
-- Filter songs array by: title includes query (case-insensitive) OR song number equals query
-- Render matching results in real-time
-- Highlight matching text with `<mark>` tags
-
-### Settings Panel Logic
-- Font size slider: range 14-24, updates CSS custom property `--font-size` on root
-- Dark mode toggle: toggles `data-theme="dark"` attribute on `<html>`, CSS variables swap
-- Show chords toggle: re-renders any open song modal with/without chords
-- Transpose: updates chord rendering in real-time for open modal; disabled UI when showChords is off
-
-### Data Persistence
-- `localStorage.setItem('hymns_songs', JSON.stringify(songs))`
-- `localStorage.setItem('hymns_prefs', JSON.stringify(prefs))`
-- On first visit (no data in localStorage), seed with 3 sample hymns
-- Welcome toast shown once via `localStorage.getItem('hymns_visited')` flag
-
----
-
-## Project File Structure
-
-```
-index.html          Single HTML file with all markup
-style.css           All styles — CSS custom properties, layout, components, animations, dark mode
-app.js              Main application — module imports, initialization, event delegation
-modules/
-  state.js          State management + localStorage persistence
-  chordParser.js    Chord parsing, rendering, transposition
-  search.js         Search overlay + filtering logic
-  ui.js             Modal/panel management, scroll-reveal, toast, header scroll
-```
-
-**Rationale for file split:** Even though there's no build step, ES6 modules (`type="module"`) keep the codebase organized and maintainable. All files are served as static assets.
+<script src="script.js"></script>
+</body>
+</html>
